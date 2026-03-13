@@ -28,20 +28,27 @@ public class Question implements Serializable {
 
     private String answer;
 
+    @TableField("judgeCases")
     private String judgeCases;
 
+    @TableField("timeLimit")
     private Integer timeLimit;
 
+    @TableField("memoryLimit")
     private Integer memoryLimit;
 
     private String difficulty;
 
+    @TableField("submitCount")
     private Integer submitCount;
 
+    @TableField("acceptedCount")
     private Integer acceptedCount;
 
+    @TableField("createTime")
     private LocalDateTime createTime;
 
+    @TableField("updateTime")
     private LocalDateTime updateTime;
 
     @TableLogic

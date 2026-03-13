@@ -20,8 +20,10 @@ public class QuestionSubmit implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
+    @TableField("questionId")
     private Long questionId;
 
+    @TableField("userId")
     private Long userId;
 
     private String language;
@@ -30,14 +32,19 @@ public class QuestionSubmit implements Serializable {
 
     private Integer status;
 
+    @TableField("judgeInfo")
     private String judgeInfo;
 
+    @TableField("timeUsed")
     private Integer timeUsed;
 
+    @TableField("memoryUsed")
     private Integer memoryUsed;
 
+    @TableField("createTime")
     private LocalDateTime createTime;
 
+    @TableField("updateTime")
     private LocalDateTime updateTime;
 
     @TableLogic

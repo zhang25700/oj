@@ -5,20 +5,20 @@ spring:
   application:
     name: online-judge
   datasource:
-    url: jdbc:mysql://localhost:3306/oj?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: root
+    url: jdbc:mysql://localhost:3308/oj?useUnicode=true&characterEncoding=utf8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=Asia/Shanghai
+    username: oj
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
-      host: localhost
+      host: 127.0.0.1
       port: 6379
       database: 0
   rabbitmq:
     host: localhost
     port: 5672
-    username: guest
-    password: guest
+    username: admin
+    password: 123456
   jackson:
     default-property-inclusion: non_null
 

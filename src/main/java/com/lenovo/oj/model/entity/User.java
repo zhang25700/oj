@@ -20,20 +20,28 @@ public class User implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
+    @TableField("userAccount")
     private String userAccount;
 
+    @TableField("userName")
     private String userName;
 
+    @TableField("userPassword")
     private String userPassword;
 
+    @TableField("userRole")
     private String userRole;
 
+    @TableField("solvedCount")
     private Integer solvedCount;
 
+    @TableField("lastAcceptedTime")
     private LocalDateTime lastAcceptedTime;
 
+    @TableField("createTime")
     private LocalDateTime createTime;
 
+    @TableField("updateTime")
     private LocalDateTime updateTime;
 
     @TableLogic
