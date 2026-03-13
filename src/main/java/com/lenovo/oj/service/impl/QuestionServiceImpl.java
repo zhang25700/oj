@@ -1,6 +1,7 @@
 package com.lenovo.oj.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -60,14 +61,14 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         String cacheKey = RedisConstant.HOT_QUESTION_PREFIX + id;
         String cached = stringRedisTemplate.opsForValue().get(cacheKey);
         if (cached != null) {
-            return cn.hutool.json.JSONUtil.toBean(cached, QuestionVO.class);
+            return JSONUtil.toBean(cached, QuestionVO.class);
         }
         Question question = getById(id);
         if (question == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "题目不存在");
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Problem not found");
         }
         QuestionVO vo = QuestionVO.fromEntity(question);
-        stringRedisTemplate.opsForValue().set(cacheKey, cn.hutool.json.JSONUtil.toJsonStr(vo), 10, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(cacheKey, JSONUtil.toJsonStr(vo), 10, TimeUnit.MINUTES);
         return vo;
     }
 

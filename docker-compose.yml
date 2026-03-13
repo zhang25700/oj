@@ -9,7 +9,7 @@ services:
       MYSQL_USER: oj
       MYSQL_PASSWORD: 123456
     ports:
-      - "3308:3306"
+      - "3306:3306"
     command:
       - --default-authentication-plugin=mysql_native_password
       - --character-set-server=utf8mb4
@@ -21,6 +21,7 @@ services:
     image: redis:7.2.5
     container_name: oj-redis
     restart: unless-stopped
+    command: ["redis-server", "--requirepass", "123456"]
     ports:
       - "6379:6379"
 

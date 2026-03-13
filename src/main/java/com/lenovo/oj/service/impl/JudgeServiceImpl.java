@@ -14,6 +14,8 @@ import com.lenovo.oj.service.RankingService;
 import com.lenovo.oj.service.UserService;
 import com.lenovo.oj.service.model.ExecuteCodeRequest;
 import com.lenovo.oj.service.model.ExecuteCodeResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,12 +38,12 @@ public class JudgeServiceImpl implements JudgeService {
             return;
         }
         submit.setStatus(SubmitStatusEnum.RUNNING.getValue());
-        submit.setJudgeInfo("判题中");
+        submit.setJudgeInfo("Running");
         questionSubmitService.updateById(submit);
 
         Question question = questionService.getById(submit.getQuestionId());
         if (question == null) {
-            questionSubmitService.updateJudgeResult(submitId, SubmitStatusEnum.RUNTIME_ERROR.getValue(), "题目不存在", 0, 0);
+            questionSubmitService.updateJudgeResult(submitId, SubmitStatusEnum.RUNTIME_ERROR.getValue(), "Problem not found", 0, 0);
             return;
         }
 
@@ -67,9 +69,11 @@ public class JudgeServiceImpl implements JudgeService {
                 failMessage = response.getMessage();
                 break;
             }
-            if (!expectedOutput.trim().equals(response.getOutput().trim()) && !"mock-output".equals(response.getOutput())) {
+            String actualOutput = response.getOutput() == null ? "" : response.getOutput().trim();
+            String expected = expectedOutput == null ? "" : expectedOutput.trim();
+            if (!expected.equals(actualOutput)) {
                 accepted = false;
-                failMessage = "输出与预期不一致";
+                failMessage = buildWrongAnswerMessage(judgeCase.getStr("input"), expected, actualOutput);
                 break;
             }
         }
@@ -84,5 +88,18 @@ public class JudgeServiceImpl implements JudgeService {
                 rankingService.recordAccepted(user.getId(), user.getUserName(), user.getSolvedCount());
             }
         }
+    }
+
+    private String buildWrongAnswerMessage(String input, String expected, String actual) {
+        return "WA|"
+                + encode(input)
+                + "|"
+                + encode(expected)
+                + "|"
+                + encode(actual);
+    }
+
+    private String encode(String value) {
+        return Base64.getEncoder().encodeToString((value == null ? "" : value).getBytes(StandardCharsets.UTF_8));
     }
 }

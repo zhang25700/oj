@@ -3,15 +3,15 @@
     <header class="topbar">
       <div class="brand" @click="$router.push('/')">Online Judge</div>
       <nav class="nav">
-        <router-link to="/">题库</router-link>
-        <router-link to="/submissions">我的提交</router-link>
-        <router-link to="/ranking">排行榜</router-link>
+        <router-link to="/">&#39064;&#24211;</router-link>
+        <router-link to="/submissions">&#25105;&#30340;&#25552;&#20132;</router-link>
+        <router-link to="/ranking">&#25490;&#34892;&#27036;</router-link>
       </nav>
       <div class="topbar-actions">
         <template v-if="user">
           <span class="user-pill">{{ user.userName }}</span>
         </template>
-        <router-link v-else to="/login" class="login-link">登录</router-link>
+        <router-link v-else to="/login" class="login-link">&#30331;&#24405;</router-link>
       </div>
     </header>
     <main class="page-wrap">
@@ -29,7 +29,7 @@ const user = ref(null);
 async function loadUser() {
   try {
     user.value = await getCurrentUser();
-  } catch (error) {
+  } catch {
     user.value = null;
   }
 }
