@@ -25,6 +25,11 @@ import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * 题目服务实现。
+ *
+ * 负责题目 CRUD 里的核心读写逻辑，以及题目详情缓存、提交统计等业务。
+ */
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> implements QuestionService {
 
     private final StringRedisTemplate stringRedisTemplate;
@@ -32,6 +37,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long addQuestion(QuestionAddRequest request) {
+        // 新增题目时初始化提交数和通过数，避免后续统计逻辑出现空值判断。
         Question question = BeanUtil.copyProperties(request, Question.class);
         question.setSubmitCount(0);
         question.setAcceptedCount(0);
@@ -42,6 +48,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Override
     public IPage<QuestionVO> pageQuestions(QuestionQueryRequest request) {
         LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
+        // 条件按“有值才生效”的方式动态拼装，支持标签、难度、关键词组合检索。
         wrapper.and(StringUtils.hasText(request.getKeyword()),
                         query -> query.like(Question::getTitle, request.getKeyword())
                                 .or()
@@ -61,6 +68,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         String cacheKey = RedisConstant.HOT_QUESTION_PREFIX + id;
         String cached = stringRedisTemplate.opsForValue().get(cacheKey);
         if (cached != null) {
+            // 热门题详情直接命中 Redis，减少重复查库和 VO 组装。
             return JSONUtil.toBean(cached, QuestionVO.class);
         }
         Question question = getById(id);
@@ -68,6 +76,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Problem not found");
         }
         QuestionVO vo = QuestionVO.fromEntity(question);
+        // 题目详情读多写少，适合做短期缓存。
         stringRedisTemplate.opsForValue().set(cacheKey, JSONUtil.toJsonStr(vo), 10, TimeUnit.MINUTES);
         return vo;
     }
@@ -84,6 +93,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             question.setAcceptedCount((question.getAcceptedCount() == null ? 0 : question.getAcceptedCount()) + 1);
         }
         updateById(question);
+        // 题目统计变化后主动删缓存，保证下次详情查询能看到最新通过率和提交数。
         stringRedisTemplate.delete(RedisConstant.HOT_QUESTION_PREFIX + questionId);
     }
 }

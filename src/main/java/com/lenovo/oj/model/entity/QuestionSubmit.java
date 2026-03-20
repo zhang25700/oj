@@ -12,6 +12,11 @@ import lombok.Data;
 
 @Data
 @TableName("question_submit")
+/**
+ * 提交记录实体。
+ *
+ * 每次正式提交都会生成一条记录，保存用户代码、判题状态和评测结果。
+ */
 public class QuestionSubmit implements Serializable {
 
     @Serial

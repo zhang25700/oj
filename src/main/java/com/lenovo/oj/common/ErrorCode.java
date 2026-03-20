@@ -3,6 +3,12 @@ package com.lenovo.oj.common;
 import lombok.Getter;
 
 @Getter
+/**
+ * 全局业务错误码枚举。
+ *
+ * 这些错误码的定位是“业务语义”，不是 HTTP 状态码的重复包装。
+ * 例如登录失效、参数错误、数据不存在，都通过统一 code 交给前端做统一处理。
+ */
 public enum ErrorCode {
     SUCCESS(0, "ok"),
     PARAMS_ERROR(40000, "请求参数错误"),

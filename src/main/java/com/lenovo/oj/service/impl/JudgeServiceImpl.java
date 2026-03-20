@@ -22,6 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * 判题服务实现。
+ *
+ * 负责读取提交记录和题目测试点，调用沙箱执行代码，并把最终结果回写数据库。
+ */
 public class JudgeServiceImpl implements JudgeService {
 
     private final QuestionSubmitService questionSubmitService;
@@ -37,6 +42,7 @@ public class JudgeServiceImpl implements JudgeService {
         if (submit == null) {
             return;
         }
+        // 一旦消费者开始处理，先把状态切到 Running，方便前端区分“排队中”和“判题中”。
         submit.setStatus(SubmitStatusEnum.RUNNING.getValue());
         submit.setJudgeInfo("Running");
         questionSubmitService.updateById(submit);
@@ -52,6 +58,7 @@ public class JudgeServiceImpl implements JudgeService {
         String failMessage = "Accepted";
         int maxTime = 0;
         int maxMemory = 0;
+        // OJ 判题按测试点逐个执行：任意一个测试点失败，就提前终止并返回该失败结果。
         for (Object judgeCaseObj : judgeCases) {
             cn.hutool.json.JSONObject judgeCase = JSONUtil.parseObj(judgeCaseObj);
             ExecuteCodeRequest request = new ExecuteCodeRequest();
@@ -81,6 +88,7 @@ public class JudgeServiceImpl implements JudgeService {
         int finalStatus = accepted ? SubmitStatusEnum.ACCEPTED.getValue() : SubmitStatusEnum.WRONG_ANSWER.getValue();
         questionSubmitService.updateJudgeResult(submitId, finalStatus, failMessage, maxTime, maxMemory);
         questionService.increaseSubmitCount(question.getId(), accepted);
+        // 只有真正 AC 才更新用户解题数和排行榜，避免错误提交污染排名。
         if (accepted) {
             userService.increaseSolvedCount(submit.getUserId());
             User user = userService.getById(submit.getUserId());
@@ -91,6 +99,7 @@ public class JudgeServiceImpl implements JudgeService {
     }
 
     private String buildWrongAnswerMessage(String input, String expected, String actual) {
+        // WA 时把失败样例打包回前端，便于自动回填到“自定义输入评测”。
         return "WA|"
                 + encode(input)
                 + "|"

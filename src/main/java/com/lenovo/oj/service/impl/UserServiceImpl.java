@@ -24,6 +24,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * 用户服务实现。
+ *
+ * 负责注册、登录、登录态恢复以及 AC 后的用户统计更新。
+ */
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     private final PasswordEncoder passwordEncoder;
@@ -39,6 +44,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = new User();
         user.setUserAccount(request.getUserAccount());
         user.setUserName(request.getUserName());
+        // 密码永远不明文入库，只存 BCrypt 哈希值。
         user.setUserPassword(passwordEncoder.encode(request.getUserPassword()));
         user.setUserRole(UserConstant.USER_ROLE);
         user.setSolvedCount(0);
@@ -52,6 +58,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null || !passwordEncoder.matches(request.getUserPassword(), user.getUserPassword())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码错误");
         }
+        // 登录成功后生成随机 token，并把 userId 写入 Redis，后续请求通过 token 恢复登录态。
         String token = UUID.randomUUID().toString().replace("-", "");
         stringRedisTemplate.opsForValue().set(
                 RedisConstant.LOGIN_USER_PREFIX + token,
@@ -64,6 +71,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public User getLoginUser() {
+        // 当前用户由拦截器预先放入 ThreadLocal，业务层只负责读取和兜底校验。
         User user = LoginUserHolder.get();
         if (user == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);

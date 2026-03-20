@@ -13,8 +13,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * 实时排行榜实现。
+ *
+ * 使用 Redis ZSet 存储“用户 -> 排名分数”，从而支持高频更新和 Top N 查询。
+ */
 public class RankingServiceImpl implements RankingService {
 
+    // solvedCount 作为主排序维度，时间戳作为次排序维度，拼进同一个 score 里。
     private static final double SCORE_BASE = 10_000_000_000_000D;
 
     private final StringRedisTemplate stringRedisTemplate;
@@ -22,6 +28,7 @@ public class RankingServiceImpl implements RankingService {
     @Override
     public void recordAccepted(Long userId, String userName, long solvedCount) {
         String member = userId + ":" + userName;
+        // solvedCount 越大分数越大；同 solvedCount 下，越早达到的人分数越靠前。
         double score = solvedCount * SCORE_BASE - System.currentTimeMillis();
         stringRedisTemplate.opsForZSet().add(RedisConstant.RANKING_KEY, member, score);
     }
@@ -34,6 +41,7 @@ public class RankingServiceImpl implements RankingService {
         if (tuples == null) {
             return result;
         }
+        // member 里同时携带 userId 和 userName，避免排行榜查询时再回库拼装。
         for (ZSetOperations.TypedTuple<String> tuple : tuples) {
             if (tuple.getValue() == null || tuple.getScore() == null) {
                 continue;

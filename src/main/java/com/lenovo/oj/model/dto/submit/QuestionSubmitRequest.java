@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
+/**
+ * 正式提交代码请求体。
+ */
 public class QuestionSubmitRequest {
 
     @NotNull

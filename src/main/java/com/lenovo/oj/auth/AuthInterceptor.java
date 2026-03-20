@@ -15,6 +15,15 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
 @RequiredArgsConstructor
+/**
+ * 基于 Redis Token 的轻量鉴权拦截器。
+ *
+ * 拦截器的职责不是强制所有请求必须登录，而是：
+ * 1. 如果请求头里带了 token，就尝试解析并加载当前用户。
+ * 2. 如果没有 token，则允许继续往下走，由具体业务接口决定是否要求登录。
+ *
+ * 这样可以同时支持“公开接口”和“登录后接口”，避免在控制层重复写用户解析逻辑。
+ */
 public class AuthInterceptor implements HandlerInterceptor {
 
     private final StringRedisTemplate stringRedisTemplate;
@@ -22,6 +31,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        // token 存在时才尝试从 Redis 里恢复用户上下文；没有 token 的请求直接放行。
         String token = request.getHeader(UserConstant.LOGIN_TOKEN);
         if (token == null || token.isBlank()) {
             return true;
@@ -40,6 +50,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        // ThreadLocal 必须在请求结束后清理，避免线程复用时把上一个请求的用户串到下一个请求。
         LoginUserHolder.remove();
     }
 }

@@ -32,3 +32,19 @@ mybatis-plus:
       logic-delete-field: isDelete
       logic-delete-value: 1
       logic-not-delete-value: 0
+
+oj:
+  sandbox:
+    docker:
+      java-image: eclipse-temurin:17-jdk
+      cpp-image: gcc:14
+      c-image: gcc:14
+      workspace: /workspace
+      cpus: 1.0
+      compile-timeout-ms: 10000
+      extra-timeout-ms: 2000
+      pids-limit: 128
+      availability-check-interval-ms: 30000
+      prewarm-images: true
+      startup-timeout-ms: 20000
+      compile-memory-limit-mb: 512

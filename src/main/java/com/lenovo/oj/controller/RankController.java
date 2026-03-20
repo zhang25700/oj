@@ -14,10 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/rank")
 @RequiredArgsConstructor
+/**
+ * 排行榜接口。
+ *
+ * 当前榜单数据来自 Redis ZSet，适合高频读取 Top N 场景。
+ */
 public class RankController {
 
     private final RankingService rankingService;
 
+    // 返回排行榜前 N 名，默认取前 10。
     @GetMapping("/top")
     public BaseResponse<List<RankVO>> topN(@RequestParam(defaultValue = "10") int limit) {
         return ResultUtils.success(rankingService.topN(limit));

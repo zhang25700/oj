@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
+/**
+ * 用户注册请求体。
+ */
 public class UserRegisterRequest {
 
     @NotBlank

@@ -5,6 +5,9 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
+/**
+ * 排行榜返回对象。
+ */
 public class RankVO {
 
     private Long userId;

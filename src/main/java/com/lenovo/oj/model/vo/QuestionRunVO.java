@@ -4,6 +4,9 @@ import com.lenovo.oj.service.model.ExecuteCodeResponse;
 import lombok.Data;
 
 @Data
+/**
+ * 自定义输入运行结果返回对象。
+ */
 public class QuestionRunVO {
 
     private boolean success;

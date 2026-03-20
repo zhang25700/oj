@@ -6,6 +6,12 @@ import java.util.Base64;
 import lombok.Data;
 
 @Data
+/**
+ * 提交记录视图对象。
+ *
+ * 与实体相比，这里额外做了 judgeInfo 的解析，
+ * 便于前端直接展示 WA 的失败输入、期望输出和实际输出。
+ */
 public class QuestionSubmitVO {
 
     private Long id;
@@ -45,6 +51,7 @@ public class QuestionSubmitVO {
     }
 
     private static void parseJudgeInfo(QuestionSubmitVO vo, String judgeInfo) {
+        // 只有 WA 的特殊编码格式才需要拆解，其它状态保持原始 judgeInfo 即可。
         if (judgeInfo == null || !judgeInfo.startsWith("WA|")) {
             return;
         }
@@ -59,6 +66,7 @@ public class QuestionSubmitVO {
     }
 
     private static String decode(String value) {
+        // WA 附加信息通过 Base64 编码存储，避免分隔符和换行破坏传输格式。
         if (value == null || value.isBlank()) {
             return "";
         }

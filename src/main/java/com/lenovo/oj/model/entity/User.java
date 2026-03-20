@@ -12,6 +12,11 @@ import lombok.Data;
 
 @Data
 @TableName("oj_user")
+/**
+ * 用户实体。
+ *
+ * 保存账号、加密密码、角色、已解题数和最后通过时间等信息。
+ */
 public class User implements Serializable {
 
     @Serial

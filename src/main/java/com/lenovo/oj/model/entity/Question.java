@@ -12,6 +12,11 @@ import lombok.Data;
 
 @Data
 @TableName("question")
+/**
+ * 题目实体。
+ *
+ * 对应数据库中的 question 表，保存题面、测试点、时空限制和统计信息。
+ */
 public class Question implements Serializable {
 
     @Serial

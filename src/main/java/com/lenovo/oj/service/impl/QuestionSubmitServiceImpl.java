@@ -31,6 +31,11 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 @Service
 @RequiredArgsConstructor
+/**
+ * 提交服务实现。
+ *
+ * 负责正式提交入库、自定义运行、提交详情查询以及判题结果回写。
+ */
 public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper, QuestionSubmit> implements QuestionSubmitService {
 
     private final UserService userService;
@@ -59,6 +64,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         save(submit);
 
         Long submitId = submit.getId();
+        // 提交记录必须先提交事务，再发 MQ；否则消费者可能先收到消息但查不到这条提交。
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
@@ -109,6 +115,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         if (question == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "Problem not found");
         }
+        // 自定义运行直接复用判题沙箱，保证“运行结果”和正式判题的环境一致。
         ExecuteCodeRequest executeCodeRequest = new ExecuteCodeRequest();
         executeCodeRequest.setLanguage(request.getLanguage());
         executeCodeRequest.setCode(request.getCode());
@@ -126,6 +133,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         if (submit == null) {
             return;
         }
+        // 判题服务只更新最终状态和评测信息，不改动原始代码和题目信息。
         submit.setStatus(status);
         submit.setJudgeInfo(judgeInfo);
         submit.setTimeUsed(timeUsed);

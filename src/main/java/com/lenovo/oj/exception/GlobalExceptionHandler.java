@@ -9,6 +9,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
+/**
+ * 全局异常处理器。
+ *
+ * 作用是把分散在控制层 / 服务层抛出的异常统一收敛成前端可识别的响应结构，
+ * 避免出现默认的 HTML 错误页或框架级异常堆栈直接暴露给前端。
+ */
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)

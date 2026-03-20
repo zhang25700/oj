@@ -8,6 +8,12 @@ import java.util.List;
 import lombok.Data;
 
 @Data
+/**
+ * 题目详情 / 列表视图对象。
+ *
+ * 从实体中剔除判题答案等不需要直接返回给前端的字段，
+ * 同时把 judgeCases 解析成更友好的样例列表。
+ */
 public class QuestionVO {
 
     private Long id;
@@ -46,6 +52,7 @@ public class QuestionVO {
     }
 
     private static List<QuestionSampleVO> parseSamples(String judgeCases) {
+        // judgeCases 在库里是 JSON 数组，前端题目页只需要其中的样例输入输出。
         List<QuestionSampleVO> result = new ArrayList<>();
         if (judgeCases == null || judgeCases.isBlank()) {
             return result;

@@ -6,6 +6,9 @@ import lombok.Getter;
 @Getter
 public class BusinessException extends RuntimeException {
 
+    /**
+     * 业务错误码，最终会被统一异常处理器转换成 BaseResponse 返回给前端。
+     */
     private final int code;
 
     public BusinessException(ErrorCode errorCode) {
